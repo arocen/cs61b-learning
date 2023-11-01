@@ -114,38 +114,50 @@ public class Model extends Observable {
         // for the tilt to the Side SIDE. If the board changed, set the
         // changed local variable to true.
 
-        // Firstly handle the situation that side == Side.NORTH
-        if (side == side.NORTH){
-            for (int column = 0; column < size(); column++){
-                // loop from top down
-                for (int row = size() - 1, next_row = size() - 2; next_row >= 0;next_row--){
-                    Tile t = tile(column, row);
-                    Tile nt = tile(column, next_row);
-                    if (t == null && nt != null){
-                        // to move
+        // Check if view perspective change is needed
+        if (side != Side.NORTH){
+            board.setViewingPerspective(side);
+        }
+
+        /* handle the situation that side == Side.NORTH
+           use board.move() to move tiles
+        */
+        for (int column = 0; column < size(); column++) {
+            // loop from top down
+            for (int row = size() - 1, next_row = size() - 2; next_row >= 0; next_row--) {
+                Tile t = tile(column, row);
+                Tile nt = tile(column, next_row);
+                if (t == null && nt != null) {
+                    // to move
+                    board.move(column, row, nt);
+                    changed = true;
+                } else if (t != null && nt != null) {
+                    if (t.value() == nt.value()) {
                         board.move(column, row, nt);
+                        // add score after mergence
+                        score += t.value() * 2;
                         changed = true;
-                    }
-                    else if (t != null && nt != null){
-                        if (t.value() == nt.value()){
-                            board.move(column, row, nt);
-                            // add score after mergence
-                            score += t.value() * 2;
+                        row--;
+                    } else {
+                        if (row - 1 != next_row) {
+                            board.move(column, row - 1, nt);
                             changed = true;
                             row--;
                         }
+                        // handle edge case
                         else{
-                            if (row - 1 != next_row){
-                                nt.move(column, row - 1);
-                                changed = true;
-                                row--;
-                            }
+                            row--;
+                            continue;
                         }
-                    }
                     }
                 }
             }
+        }
 
+        // Reset the view perspective if it had been changed
+        if (side != Side.NORTH){
+            board.setViewingPerspective(Side.NORTH);
+        }
 
         checkGameOver();
         if (changed) {
