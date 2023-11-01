@@ -3,14 +3,16 @@
  */
 public class Collatz {
 
-    /** Buggy implementation of nextNumber! */
+    /** Adjust the conditions to make sure the return value is a tpe of int.
+     * 
+     * @param n
+     * @return
+     */
     public static int nextNumber(int n) {
-        if (n  == 128) {
-            return 1;
-        } else if (n == 5) {
+        if (n % 2 == 0){
+            return n / 2;
+        }else{
             return 3 * n + 1;
-        } else {
-            return n * 2;
         }
     }
 
