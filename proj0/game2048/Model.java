@@ -175,7 +175,42 @@ public class Model extends Observable {
      */
     public static boolean atLeastOneMoveExists(Board b) {
         // TODO: Fill in this function.
+        // At least 1 empty space exists
+        if (emptySpaceExists(b)){
+            return true;
+        }
+        else {
+            // There are two adjacent tiles with the same value
+            int size = b.size();
+            for (int row = 0; row < size; row++){
+                for (int column = 0; column < size; column++){
+                    // Get the values of adjacent tiles
+                    int center_value = b.tile(column, row).value();
+                    if (row > 0){
+                        int up_value = b.tile(column, row - 1).value();
+                        if (center_value == up_value){
+                            return true;
+                        }
+                    }if (row < size - 1){
+                        int down_value = b.tile(column, row + 1).value();
+                        if (center_value == down_value){
+                            return true;
+                        }
+                    }if (column > 0){
+                        int left_value = b.tile(column - 1, row).value();
+                            if (center_value == left_value){
+                                return true;
+                            }
+                    }if (column < size - 1){
+                        int right_value = b.tile(column + 1, row).value();
+                        if (center_value == right_value){
+                            return true;
+                        }
+                    }
+                }
+            }
         return false;
+        }
     }
 
 
