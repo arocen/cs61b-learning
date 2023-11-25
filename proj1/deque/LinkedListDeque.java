@@ -98,4 +98,16 @@ public class LinkedListDeque<T> {
         }
         return indexedValue;
     }
+    private T getRecursiveHelp(Node track, int index) {
+        if (index == 0) {
+            return track.item;
+        }
+        return getRecursiveHelp(track.next, index - 1);
+    }
+    public T getRecursive(int index) {
+        if (index >= size) {
+            return null;
+        }
+        return getRecursiveHelp(sentinel.next, index);
+    }
 }
