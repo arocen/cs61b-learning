@@ -1,5 +1,7 @@
 package deque;
 
+import java.util.Iterator;
+
 public class LinkedListDeque<T> {
 
 
@@ -109,5 +111,25 @@ public class LinkedListDeque<T> {
             return null;
         }
         return getRecursiveHelp(sentinel.next, index);
+    }
+    public Iterator<T> iterator() {
+        return new LinkedListIterator();
+    }
+    private class LinkedListIterator implements Iterator<T> {
+        private int position;
+        public LinkedListIterator() {
+            position = 0;
+        }
+        public boolean hasNext() {
+            return position < size;
+        }
+        public T next() {
+            T returnedItem = get(position);
+            position += 1;
+            return returnedItem;
+        }
+    }
+    public boolean equals(Object o) {
+
     }
 }
