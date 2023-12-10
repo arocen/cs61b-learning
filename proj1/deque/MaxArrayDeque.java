@@ -3,8 +3,11 @@ package deque;
 import java.util.Comparator;
 
 public class MaxArrayDeque<T> extends ArrayDeque<T>{
-    public MaxArrayDeque(Comparator<T> c) {}
-    private class Comparator<T> {
+    public Comparator cmp;
+    public MaxArrayDeque(Comparator<T> c) {
+        cmp = new Comparator<T>();
+    }
+    private class defaultComparator{
 
     }
     public T max() {}
