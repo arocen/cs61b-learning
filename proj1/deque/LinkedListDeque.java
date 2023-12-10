@@ -129,7 +129,34 @@ public class LinkedListDeque<T> {
             return returnedItem;
         }
     }
+    @Override
     public boolean equals(Object o) {
-
+        if (this == o) {
+            return true;
+        }
+        // instanceof casting not available under java 16.
+        if (o instanceof LinkedListDeque) {
+            if (this.size != ((LinkedListDeque) o).size) {
+                return false;
+            }
+            // Loop and check if all items of this exist in o. Note that the orders of items must be same.
+            for (int poz = 0; poz < this.size; poz++) {
+                if (this.get(poz) != ((LinkedListDeque) o).get(poz)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+    /** Check if LinkedList contains thing by using iterator. Useless method. */
+    private boolean contains(T thing) {
+        Iterator<T> AnIterator = this.iterator();
+        while (AnIterator.hasNext()) {
+            if (AnIterator.next() == thing) {
+                return true;
+            }
+        }
+        return false;
     }
 }
