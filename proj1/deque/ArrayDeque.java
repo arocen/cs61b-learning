@@ -85,7 +85,7 @@ public class ArrayDeque<T> {
         return new ArrayIterator();
     }
     private class ArrayIterator implements Iterator {
-        public int position;
+        private int position;
         public ArrayIterator() {
             position = 0;
         }

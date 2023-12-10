@@ -151,9 +151,9 @@ public class LinkedListDeque<T> {
     }
     /** Check if LinkedList contains thing by using iterator. Useless method. */
     private boolean contains(T thing) {
-        Iterator<T> AnIterator = this.iterator();
-        while (AnIterator.hasNext()) {
-            if (AnIterator.next() == thing) {
+        Iterator<T> anIterator = this.iterator();
+        while (anIterator.hasNext()) {
+            if (anIterator.next() == thing) {
                 return true;
             }
         }
