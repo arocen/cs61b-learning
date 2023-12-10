@@ -98,4 +98,22 @@ public class ArrayDeque<T> {
             return returnedItem;
         }
     }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o instanceof ArrayDeque) {
+            if (this.size != ((ArrayDeque) o).size) {
+                return false;
+            }
+            for (int poz = 0; poz < this.size; poz++) {
+                if (this.get(poz) != ((ArrayDeque) o).get(poz)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
 }
