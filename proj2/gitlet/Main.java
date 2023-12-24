@@ -21,4 +21,8 @@ public class Main {
             // TODO: FILL THE REST IN
         }
     }
+    /** Initialize a gitlet repository in current directory. */
+    private void init() {
+
+    }
 }
