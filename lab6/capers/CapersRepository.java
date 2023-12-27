@@ -33,9 +33,9 @@ public class CapersRepository {
      */
     public static void setupPersistence() throws IOException {
         Dog.DOG_FOLDER.mkdirs();
-        File story = new File(CWD, "story");
+        File story = join(CAPERS_FOLDER, "story");
         // Overwrite an empty file if story exists.
-        if (story.exists()) {
+        if (!story.exists()) {
             writeContents(story, "");
         }
         // Create an empty story file if story doesn't exist.
@@ -53,7 +53,13 @@ public class CapersRepository {
         // TODO
         File story = join(CAPERS_FOLDER, "story");
         String savedStory = readContentsAsString(story);
-        writeContents(story, savedStory, "\n", text);
+        // Do not add newline character if story is empty.
+        if (savedStory.length() == 0) {
+            writeContents(story, text);
+        }
+        else {
+            writeContents(story, savedStory, "\n", text);
+        }
         System.out.print(readContentsAsString(story));
     }
 
@@ -66,7 +72,7 @@ public class CapersRepository {
         // TODO
         Dog wan = new Dog(name, breed, age);
         wan.saveDog();
-        System.out.println(wan.toString());
+        System.out.print(wan.toString());
     }
 
     /**
@@ -78,7 +84,7 @@ public class CapersRepository {
     public static void celebrateBirthday(String name) {
         // TODO
         Dog birthdayDog = Dog.fromFile(name);
-        System.out.println(birthdayDog.toString());
+        System.out.print(birthdayDog.toString());
         birthdayDog.haveBirthday();
         birthdayDog.saveDog();
     }
