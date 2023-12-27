@@ -7,7 +7,7 @@ import static capers.Utils.*;
 /** Represents a dog that can be serialized.
  * @author TODO
 */
-public class Dog { // TODO
+public class Dog implements Serializable{ // Don't forget to implement Serializable when using Serialization.
 
     /** Folder that dogs live in. */
     static final File DOG_FOLDER = join(CapersRepository.CAPERS_FOLDER, "dogs"); // TODO (hint: look at the `join`
@@ -41,7 +41,10 @@ public class Dog { // TODO
     public static Dog fromFile(String name) {
         // TODO (hint: look at the Utils file)
         File dogPath = join(DOG_FOLDER, name);
-        Dog readDog = <Dog>readObject(dogPath, Dog.class);
+        if (dogPath.exists()) {
+            Dog readDog = Utils.readObject(dogPath, Dog.class);
+            return readDog;
+        }
         return null;
     }
 
@@ -60,7 +63,7 @@ public class Dog { // TODO
     public void saveDog() {
         // TODO (hint: don't forget dog names are unique)
         File dogPath = join(DOG_FOLDER, this.name);
-        writeObject(dogPath, (Serializable) this);
+        writeObject(dogPath, this);
     }
 
     @Override
