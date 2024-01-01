@@ -1,5 +1,7 @@
 package gitlet;
 
+import java.io.File;
+
 /** Driver class for Gitlet, a subset of the Git version-control system.
  *  @author TODO
  */
@@ -21,8 +23,5 @@ public class Main {
             // TODO: FILL THE REST IN
         }
     }
-    /** Initialize a gitlet repository in current directory. */
-    private void init() {
 
-    }
 }
