@@ -40,5 +40,6 @@ public class Repository {
         }
         CWD.mkdir();
         // TODO: Create initial commit
+        Commit initCommit = new Commit();
     }
 }
