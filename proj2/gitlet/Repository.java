@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 import static gitlet.Utils.*;
+import static gitlet.Utils.join;
 
 // TODO: any imports you need here
 
@@ -25,10 +26,13 @@ public class Repository {
     /** The .gitlet directory. */
     public static final File GITLET_DIR = join(CWD, ".gitlet");
 
+
+
+
     /* TODO: fill in the rest of this class. */
 
     /** Initialize a Gitlet system in current directory. */
-    private void init() {
+    public void init() {
         // Check existence
         if (CWD.exists()) {
             System.out.println("A Gitlet version-control system already exists in the current directory.");
