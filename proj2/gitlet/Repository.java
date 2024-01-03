@@ -42,4 +42,12 @@ public class Repository {
         // TODO: Create initial commit
         Commit initCommit = new Commit();
     }
+    /** Add files to stage area. */
+    public void add() {
+
+    }
+    /** Commit staged files. */
+    public void commit() {
+
+    }
 }

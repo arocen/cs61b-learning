@@ -19,7 +19,7 @@ import static gitlet.Utils.join;
  *
  *  @author TODO
  */
-public class Commit {
+public class Commit implements Serializable {
     /**
      * TODO: add instance variables here.
      *
@@ -29,7 +29,10 @@ public class Commit {
      */
     /** The objects directory where commits are saved. */
     public static final File COMMITS_DIR = Utils.join(Repository.GITLET_DIR, "commits");
+    /** Point to the position of user. */
     public static String head;
+    /** Point to master branch. */
+    public static String master;
     /** The message of this Commit. */
     private String message;
     /** The timestamp of this Commit. */
@@ -48,43 +51,78 @@ public class Commit {
         time = getTime();
         filenames = trackedFilenames;
         message = M;
-        // hash = Utils.sha1(this);
+        hash = this.hash();
+        head = hash;
         // TODO: add references from filenames to blobs(hashcode). Move head pointer.
     }
     /** Initial commit, message and filenames are null.*/
     public Commit() {
         time = "00:00:00 UTC, Thursday, 1 January 1970";
+        hash = this.hash();
+        head = hash;
+        master = hash;
+        this.save();
     }
     /** Hash commit. */
-
+    private String hash() {
+        return Utils.sha1(this);
+    }
     /** Save commit. */
+    public void save() {
+        Utils.writeObject(this.locate(), this);
+    }
+    public File locate() {
+        return locate(COMMITS_DIR);
+    }
+    private File locate(File grandParentDir) {
+        // Get the first two characters of hash as the parent folder of saved blob.
+        String parent_folder = hash.substring(0, 1);
+        // Get the substring of hash without first two characters as the save name of blob.
+        String save_name = hash.substring(2);
+        return Utils.join(grandParentDir, parent_folder, save_name);
+    }
+    public boolean equals(Commit obj) {
+        return this.hash() == obj.hash();
+    }
 
     /** Saved contents of a single file. Will be removed if un-staged. */
     private class blob implements Serializable {
         /** Location of the saved serialized file. */
-        public File location;
+        public String filename;
         /** Hash of the file. */
         public String hash;
         public static final File BLOBS_DIR = Utils.join(Repository.GITLET_DIR, "blobs");
 
-        /** Launcher of blob. */
-        public blob(String stagedFilename) {
-            File filePath = Utils.join(stageDir, stagedFilename);
-            byte[] contents = Utils.readContents(filePath);
-            hash = Utils.sha1(contents);
+        /** Launcher of blob.
+         *
+         * @param stagedFile A single full path of staged file.
+         * */
+        public blob(File stagedFile, String name) {
+            byte[] contents = Utils.readContents(stagedFile);
+            filename = name;
+            hash = this.hash();
         }
 
         /** Save this blob. */
-        private void save() {
+        public void save() {
             Utils.writeObject(this.locate(), this);
         }
+        public File locate() {
+            return locate(BLOBS_DIR);
+        }
         /** Get the save location of this object according to its hash code. */
-        private File locate() {
+        private File locate(File grandParentDir) {
             // Get the first two characters of hash as the parent folder of saved blob.
             String parent_folder = hash.substring(0, 1);
             // Get the substring of hash without first two characters as the save name of blob.
             String save_name = hash.substring(2);
-            return Utils.join(BLOBS_DIR, parent_folder, save_name);
+            return Utils.join(grandParentDir, parent_folder, save_name);
+        }
+        public boolean equals(blob obj) {
+            return this.hash() == obj.hash();
+        }
+        public String hash(){
+            return Utils.sha1(this);
         }
     }
     /** Get system time and format it like "00:00:00 UTC, Thursday, 1 January 1970". */
