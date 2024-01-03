@@ -8,6 +8,7 @@ import static gitlet.Utils.join;
 
 /** Represents a gitlet repository.
  *  TODO: It's a good idea to give a description here of what else this Class
+ *  Run commands like init, add, commit, etc.
  *  does at a high level.
  *
  *  @author TODO
@@ -46,12 +47,12 @@ public class Repository {
         Commit initCommit = new Commit();
         initCommit.save();
     }
-    /** Add files to stage area. */
+    /** Add files to staging area. */
     public void add() {
-
+        // TODO
     }
     /** Commit staged files. */
     public void commit() {
-
+        // TODO
     }
 }

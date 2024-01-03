@@ -3,6 +3,7 @@ package gitlet;
 // TODO: any imports you need here
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Date; // TODO: You'll likely use this in this class
 import java.time.Instant;
@@ -66,13 +67,14 @@ public class Commit implements Serializable {
         head = hash;
         // TODO: Move master pointer in some situations.
     }
-    /** Initial commit, message and filenames are null.*/
+    /** Initial commit, message and filenames are null.
+     *  Since head and master are both static fields, there will be no problem calling hash method within constructor.
+     * */
     public Commit() {
         time = "00:00:00 UTC, Thursday, 1 January 1970";
         hash = this.hash();
         head = hash;
         master = hash;
-        this.save();
     }
     /** Load a saved commit according to a given hash code. */
     public static Commit load(String hashcode) {
@@ -80,17 +82,41 @@ public class Commit implements Serializable {
         File savePath = blob.locate(COMMITS_DIR, hashcode);
         return Utils.readObject(savePath, Commit.class);
     }
-    /** Hash commit. */
+    /** Hash commit. Static fields are not hashed. */
     private String hash() {
-        return Utils.sha1(this);
+        // Serialize this to make sure it's a byte array.
+        byte[] serializedCommit = Utils.serialize(this);
+        return Utils.sha1(serializedCommit);
     }
-    /** Save commit. */
+    /**
+     * Save commit. Create an empty file if not exist before writing.
+     * Throw an exception if file already exists.
+     * */
     public void save() {
-        Utils.writeObject(this.locate(), this);
+        File savePath = locate();
+        // Create parent directory whose name is the first 2 characters of hash code.
+        File parentDir = locateParentDir();
+        parentDir.mkdir();
+        // Create empty file before writing.
+        if (!savePath.exists()) {
+            try {
+                savePath.createNewFile();
+            } catch (IOException e) {
+                // Handle situations that file already exists.
+                // TODO: use a better way to handle this.
+                throw Utils.error("Commit file already exists.");
+            }
+        }
+        // Write serialized Commit.
+        Utils.writeObject(savePath, this);
     }
     /** Reuse code from blob class to get location from hash code. */
     public File locate() {
         return blob.locate(COMMITS_DIR, this.hash);
+    }
+    /** Reuse code from blob class to get path of parent directory where commit is saved from hash code. */
+    public File locateParentDir() {
+        return blob.locateParentDir(COMMITS_DIR, this.hash);
     }
     public boolean equals(Commit obj) {
         return this.hash() == obj.hash();
@@ -116,6 +142,7 @@ public class Commit implements Serializable {
 
         /** Save this blob. */
         public void save() {
+            // TODO: fix bugs
             Utils.writeObject(this.locate(), this);
         }
         public File locate() {
@@ -124,10 +151,15 @@ public class Commit implements Serializable {
         /** Get the save location of this object according to its hash code. */
         public static File locate(File grandParentDir, String hashcode) {
             // Get the first two characters of hash as the parent folder of saved blob.
-            String parent_folder = hashcode.substring(0, 1);
+            String parent_folder = hashcode.substring(0, 2);
             // Get the substring of hash without first two characters as the save name of blob.
             String save_name = hashcode.substring(2);
             return Utils.join(grandParentDir, parent_folder, save_name);
+        }
+        /** Get path of parent directory whose name is the first 2 characters of hash code. */
+        public static File locateParentDir(File grandParentDir, String hashcode) {
+            String parent_folder = hashcode.substring(0, 2);
+            return Utils.join(grandParentDir, parent_folder);
         }
         public boolean equals(blob obj) {
             return this.hash() == obj.hash();
