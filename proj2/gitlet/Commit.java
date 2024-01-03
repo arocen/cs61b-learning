@@ -63,7 +63,7 @@ public class Commit implements Serializable {
 //            System.exit(0);
 //        }
         blobs = trackedBlobs;
-        hash = this.hash();
+        hash = hash();
         head = hash;
         // TODO: Move master pointer in some situations.
     }
@@ -72,7 +72,7 @@ public class Commit implements Serializable {
      * */
     public Commit() {
         time = "00:00:00 UTC, Thursday, 1 January 1970";
-        hash = this.hash();
+        hash = hash();
         head = hash;
         master = hash;
     }
@@ -112,11 +112,11 @@ public class Commit implements Serializable {
     }
     /** Reuse code from blob class to get location from hash code. */
     public File locate() {
-        return blob.locate(COMMITS_DIR, this.hash);
+        return blob.locate(COMMITS_DIR, hash);
     }
     /** Reuse code from blob class to get path of parent directory where commit is saved from hash code. */
     public File locateParentDir() {
-        return blob.locateParentDir(COMMITS_DIR, this.hash);
+        return blob.locateParentDir(COMMITS_DIR, hash);
     }
     public boolean equals(Commit obj) {
         return this.hash() == obj.hash();
@@ -137,16 +137,30 @@ public class Commit implements Serializable {
         public blob(File stagedFile, String name) {
             byte[] contents = Utils.readContents(stagedFile);
             filename = name;
-            hash = this.hash();
+            hash = hash();
         }
 
         /** Save this blob. */
         public void save() {
-            // TODO: fix bugs
-            Utils.writeObject(this.locate(), this);
+            File savePath = locate();
+            File parentDir = locateParentDir();
+            parentDir.mkdir();
+            if (!savePath.exists()) {
+                try {
+                    savePath.createNewFile();
+                } catch (IOException e) {
+                    // Handle situations that file already exists.
+                    // TODO: use a better way to handle this.
+                    throw Utils.error("Blob file already exists.");
+                }
+            }
+            Utils.writeObject(savePath, this);
         }
         public File locate() {
-            return locate(BLOBS_DIR, this.hash);
+            return locate(BLOBS_DIR, hash);
+        }
+        public File locateParentDir() {
+            return locateParentDir(BLOBS_DIR, hash);
         }
         /** Get the save location of this object according to its hash code. */
         public static File locate(File grandParentDir, String hashcode) {
