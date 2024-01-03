@@ -1,7 +1,10 @@
 package gitlet;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.nio.file.*;
 
 import static gitlet.Utils.*;
 import static gitlet.Utils.join;
@@ -55,35 +58,43 @@ public class Repository {
      *  In Gitlet, only one file may be added at a time.
      *
      *  @param filename Name of the single file to be added. */
-    public void add(String filename) {
+    public static void add(String filename) {
         File path = join(CWD, filename);
+
         // If the file to be added does not exist, raise error.
         if (!path.exists()) {
             System.out.print("File does not exist.");
             System.exit(0);
         }
 
-        // TODO: think out whether using filename or hashcode to save files in staging area
-        // Instantiate a blob from file to be added.
+        // Use filename instead of hashcode to save files in staging area
+        // Instantiate a blob from file to be added
         Commit.blob fileToBeAdded = new Commit.blob(path, filename);
         // Load current commit
         String currentCommitHash = Commit.head;
         Commit current = Commit.load(currentCommitHash);
-        // If this file exists in current commit, check if they are identical
-        if (current.blobs.contains(fileToBeAdded)) {
-            if identical {
-                // Check if the file with same filename already in staging area
-                // If True, remove it
-                List<String> stagedFiles = plainFilenamesIn(STAGE_DIR);
-                if (stagedFiles.contains(filename)) {
+        List<Commit.blob> curBlobs = current.blobs;
 
-                }
+        // If this file exists in current commit, and is identical(with same hashcode)
+        List<String> curHashes = curBlobs.stream().map(Commit.blob::hash).collect(Collectors.toList());
+        if (curHashes.contains(fileToBeAdded)) {
+            // Check if the file with same filename already in staging area
+            if (plainFilenamesIn(STAGE_DIR).contains(filename)) {
+                // If True, remove that staged file
+                File stagedFile = join(STAGE_DIR, filename);
+                stagedFile.delete();
             }
         }
-        // TODO
+        // Else add the newest version to staging area(a copy of raw file)
+        try {
+            Files.copy(path.toPath(), join(STAGE_DIR, filename).toPath(), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            throw error("Error copying file to staging area.");
+        }
     }
     /** Commit staged files. */
-    public void commit() {
+    public static void commit() {
         // TODO
+        // TODO: Clear all files in staging area after commit
     }
 }

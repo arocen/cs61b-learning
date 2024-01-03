@@ -38,7 +38,7 @@ public class Commit implements Serializable {
     private String message;
     /** The timestamp of this Commit. */
     private String time;
-    /** Hash codes of blobs, in the order of filenames. */
+    /** Hash codes of blobs. */
     public List<blob> blobs;
     /** Hash code of commit. */
     public String hash;
@@ -138,6 +138,10 @@ public class Commit implements Serializable {
             byte[] contents = Utils.readContents(fileToBeAdded);
             filename = name;
             hash = hash();
+        }
+        /** Return hash field. */
+        public String getHash() {
+            return hash;
         }
 
         /** Save this blob. */

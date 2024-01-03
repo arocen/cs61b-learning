@@ -19,6 +19,7 @@ public class Main {
                 Repository.init();
                 break;
             case "add":
+                Repository.add(firstArg);
                 // TODO: handle the `add [filename]` command
                 break;
             // TODO: FILL THE REST IN
