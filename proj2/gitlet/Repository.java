@@ -1,6 +1,8 @@
 package gitlet;
 
 import java.io.File;
+import java.util.List;
+
 import static gitlet.Utils.*;
 import static gitlet.Utils.join;
 
@@ -26,17 +28,15 @@ public class Repository {
     public static final File CWD = new File(System.getProperty("user.dir"));
     /** The .gitlet directory. */
     public static final File GITLET_DIR = join(CWD, ".gitlet");
+    /** Directory where staged file is saved. */
+    public static final File STAGE_DIR = join(GITLET_DIR, "stage");
 
-
-
-
-    /* TODO: fill in the rest of this class. */
 
     /** Initialize a Gitlet system in current directory. */
     public static void init() {
         // Check existence
         if (GITLET_DIR.exists()) {
-            System.out.println("A Gitlet version-control system already exists in the current directory.");
+            System.out.print("A Gitlet version-control system already exists in the current directory.");
             System.exit(0);
         }
         // Create folders
@@ -47,8 +47,39 @@ public class Repository {
         Commit initCommit = new Commit();
         initCommit.save();
     }
-    /** Add files to staging area. */
-    public void add() {
+    /** Add files to staging area.
+     *  The staging area is in 'stage' folder of '.gitlet'.
+     *  If the version of file added is identical to that in current version, do not stage it to be added,
+     *  and remove it from the staging area if it is already there.
+     *
+     *  In Gitlet, only one file may be added at a time.
+     *
+     *  @param filename Name of the single file to be added. */
+    public void add(String filename) {
+        File path = join(CWD, filename);
+        // If the file to be added does not exist, raise error.
+        if (!path.exists()) {
+            System.out.print("File does not exist.");
+            System.exit(0);
+        }
+
+        // TODO: think out whether using filename or hashcode to save files in staging area
+        // Instantiate a blob from file to be added.
+        Commit.blob fileToBeAdded = new Commit.blob(path, filename);
+        // Load current commit
+        String currentCommitHash = Commit.head;
+        Commit current = Commit.load(currentCommitHash);
+        // If this file exists in current commit, check if they are identical
+        if (current.blobs.contains(fileToBeAdded)) {
+            if identical {
+                // Check if the file with same filename already in staging area
+                // If True, remove it
+                List<String> stagedFiles = plainFilenamesIn(STAGE_DIR);
+                if (stagedFiles.contains(filename)) {
+
+                }
+            }
+        }
         // TODO
     }
     /** Commit staged files. */

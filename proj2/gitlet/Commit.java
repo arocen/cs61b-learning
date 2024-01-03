@@ -39,7 +39,7 @@ public class Commit implements Serializable {
     /** The timestamp of this Commit. */
     private String time;
     /** Hash codes of blobs, in the order of filenames. */
-    private List<blob> blobs;
+    public List<blob> blobs;
     /** Hash code of commit. */
     public String hash;
     /** Pointer to its parent commit. The hash code of parent commit, i.e. where head points to last time. */
@@ -123,7 +123,7 @@ public class Commit implements Serializable {
     }
 
     /** Saved contents of a single file. Will be removed if un-staged. */
-    public class blob implements Serializable {
+    public static class blob implements Serializable {
         /** Location of the saved serialized file. */
         public String filename;
         /** Hash of the file. */
@@ -132,10 +132,10 @@ public class Commit implements Serializable {
 
         /** Launcher of blob.
          *
-         * @param stagedFile A single full path of staged file.
+         * @param fileToBeAdded A single full path of staged file.
          * */
-        public blob(File stagedFile, String name) {
-            byte[] contents = Utils.readContents(stagedFile);
+        public blob(File fileToBeAdded, String name) {
+            byte[] contents = Utils.readContents(fileToBeAdded);
             filename = name;
             hash = hash();
         }
