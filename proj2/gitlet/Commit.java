@@ -64,7 +64,6 @@ public class Commit implements Serializable {
         blobs = trackedBlobs;
         hash = this.hash();
         head = hash;
-        this.save();
         // TODO: Move master pointer in some situations.
     }
     /** Initial commit, message and filenames are null.*/
@@ -98,7 +97,7 @@ public class Commit implements Serializable {
     }
 
     /** Saved contents of a single file. Will be removed if un-staged. */
-    private class blob implements Serializable {
+    public class blob implements Serializable {
         /** Location of the saved serialized file. */
         public String filename;
         /** Hash of the file. */

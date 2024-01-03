@@ -36,11 +36,15 @@ public class Repository {
         // Check existence
         if (CWD.exists()) {
             System.out.println("A Gitlet version-control system already exists in the current directory.");
-            return;
+            System.exit(0);
         }
+        // Create folders
         CWD.mkdir();
+        Commit.COMMITS_DIR.mkdir();
+        Commit.blob.BLOBS_DIR.mkdir();
         // TODO: Create initial commit
         Commit initCommit = new Commit();
+        initCommit.save();
     }
     /** Add files to stage area. */
     public void add() {
