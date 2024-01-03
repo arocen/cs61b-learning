@@ -32,17 +32,17 @@ public class Repository {
     /* TODO: fill in the rest of this class. */
 
     /** Initialize a Gitlet system in current directory. */
-    public void init() {
+    public static void init() {
         // Check existence
-        if (CWD.exists()) {
+        if (GITLET_DIR.exists()) {
             System.out.println("A Gitlet version-control system already exists in the current directory.");
             System.exit(0);
         }
         // Create folders
-        CWD.mkdir();
+        GITLET_DIR.mkdir();
         Commit.COMMITS_DIR.mkdir();
         Commit.blob.BLOBS_DIR.mkdir();
-        // TODO: Create initial commit
+        // Create initial commit
         Commit initCommit = new Commit();
         initCommit.save();
     }
