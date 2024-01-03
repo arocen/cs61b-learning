@@ -37,23 +37,35 @@ public class Commit implements Serializable {
     private String message;
     /** The timestamp of this Commit. */
     private String time;
-    /** List of filenames tracked in this commit, in lexical order. */
-    private List<String> filenames;
+    /** Hash codes of blobs, in the order of filenames. */
+    private List<blob> blobs;
     /** Hash code of commit. */
     public String hash;
+    /** Pointer to its parent commit. The hash code of parent commit, i.e. where head points to last time. */
+    private String parent;
 
     /** Launcher of Commit class.
      *
      * @param M
-     * @param trackedFilenames Filenames that have been tracked by using add command.
+     * @param trackedBlobs By default, the blobs tracked by its parent commit.
      */
-    public Commit(String M, List<String> trackedFilenames) {
+    public Commit(String M, List<blob> trackedBlobs) {
         time = getTime();
-        filenames = trackedFilenames;
         message = M;
+        parent = head;
+        // Load parent commit and get its blobs as default value.
+        Commit parentCommit = load(parent);
+        // TODO: Figure out how to make this compatible to add command.
+        blobs = parentCommit.blobs;
+//        // Do not update this commit to commit tree(i.e. save it) if tracked blobs(a list) equal to those of parent commit.
+//        if (blobs.equals(trackedBlobs)) {
+//            System.exit(0);
+//        }
+        blobs = trackedBlobs;
         hash = this.hash();
         head = hash;
-        // TODO: add references from filenames to blobs(hashcode). Move head pointer.
+        this.save();
+        // TODO: Move master pointer in some situations.
     }
     /** Initial commit, message and filenames are null.*/
     public Commit() {
@@ -63,6 +75,12 @@ public class Commit implements Serializable {
         master = hash;
         this.save();
     }
+    /** Load a saved commit according to a given hash code. */
+    public static Commit load(String hashcode) {
+        // Get location
+        File savePath = blob.locate(COMMITS_DIR, hashcode);
+        return Utils.readObject(savePath, Commit.class);
+    }
     /** Hash commit. */
     private String hash() {
         return Utils.sha1(this);
@@ -71,15 +89,9 @@ public class Commit implements Serializable {
     public void save() {
         Utils.writeObject(this.locate(), this);
     }
+    /** Reuse code from blob class to get location from hash code. */
     public File locate() {
-        return locate(COMMITS_DIR);
-    }
-    private File locate(File grandParentDir) {
-        // Get the first two characters of hash as the parent folder of saved blob.
-        String parent_folder = hash.substring(0, 1);
-        // Get the substring of hash without first two characters as the save name of blob.
-        String save_name = hash.substring(2);
-        return Utils.join(grandParentDir, parent_folder, save_name);
+        return blob.locate(COMMITS_DIR, this.hash);
     }
     public boolean equals(Commit obj) {
         return this.hash() == obj.hash();
@@ -108,14 +120,14 @@ public class Commit implements Serializable {
             Utils.writeObject(this.locate(), this);
         }
         public File locate() {
-            return locate(BLOBS_DIR);
+            return locate(BLOBS_DIR, this.hash);
         }
         /** Get the save location of this object according to its hash code. */
-        private File locate(File grandParentDir) {
+        public static File locate(File grandParentDir, String hashcode) {
             // Get the first two characters of hash as the parent folder of saved blob.
-            String parent_folder = hash.substring(0, 1);
+            String parent_folder = hashcode.substring(0, 1);
             // Get the substring of hash without first two characters as the save name of blob.
-            String save_name = hash.substring(2);
+            String save_name = hashcode.substring(2);
             return Utils.join(grandParentDir, parent_folder, save_name);
         }
         public boolean equals(blob obj) {
