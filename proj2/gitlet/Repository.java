@@ -143,4 +143,33 @@ public class Repository {
             join(STAGE_DIR, P).delete();
         }
     }
+    /** Create or overwrite file in CWD with the file of same name which is in head commit.
+     *  The new file is not staged. */
+    public static void checkout(String filename) {
+        // Load head commit
+        String headHash = Commit.getHead();
+        Commit head = Commit.load(headHash);
+        List<Commit.blob> headBlobs = head.getBlobs();
+        if (filenameInBlobs(filename, headBlobs) == null) {
+            System.out.print("File does not exist in that commit.");
+            System.exit(0);
+        }
+        // Get file with that name in head commit
+        String blobHash = filenameInBlobs(filename, headBlobs);
+        // TODO: load that blob
+    }
+    /** Check if given filename is same to filename of one blob in blob list.
+     *  Return hash of that blob if exists.
+     *  If blobs is null, return null. */
+    private static String filenameInBlobs(String filename, List<Commit.blob> blobs) {
+        if (blobs == null) {
+            return null;
+        }
+        for (Commit.blob B : blobs) {
+            if (B.getFilename() == filename) {
+                return B.getHash();
+            }
+        }
+        return null;
+    }
 }

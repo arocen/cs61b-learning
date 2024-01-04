@@ -31,6 +31,14 @@ public class Main {
                 }
                 Repository.commit(message);
                 break;
+            case "checkout":
+                // TODO
+                // version 1
+                // java gitlet.Main checkout -- [file name]
+                if (args.length == 3) {
+                    Repository.checkout(args[2]);
+                }
+
             // TODO: FILL THE REST IN
         }
     }

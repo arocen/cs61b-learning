@@ -40,7 +40,7 @@ public class Commit implements Serializable {
     private String message;
     /** The timestamp of this Commit. */
     private String time;
-    /** Hash codes of blobs. */
+    /** Blobs in this commit. */
     public List<blob> blobs;
     /** Hash code of commit. */
     public String hash;
@@ -141,6 +141,7 @@ public class Commit implements Serializable {
     public List<blob> getBlobs() {
         return blobs;
     }
+    /** Get string hash of head commit. */
     public static String getHead() {
         loadHead();
         return head;
