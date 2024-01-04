@@ -20,7 +20,9 @@ public class Main {
                 break;
             case "add":
                 Repository.add(firstArg);
-                // TODO: handle the `add [filename]` command
+                break;
+            case "commit":
+                Repository.commit(firstArg);
                 break;
             // TODO: FILL THE REST IN
         }

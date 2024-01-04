@@ -66,6 +66,7 @@ public class Commit implements Serializable {
         hash = hash();
         head = hash;
         // TODO: Move master pointer in some situations.
+        this.save();
     }
     /** Initial commit, message and filenames are null.
      *  Since head and master are both static fields, there will be no problem calling hash method within constructor.
@@ -75,6 +76,7 @@ public class Commit implements Serializable {
         hash = hash();
         head = hash;
         master = hash;
+        this.save();
     }
     /** Load a saved commit according to a given hash code. */
     public static Commit load(String hashcode) {
@@ -92,7 +94,7 @@ public class Commit implements Serializable {
      * Save commit. Create an empty file if not exist before writing.
      * Throw an exception if file already exists.
      * */
-    public void save() {
+    private void save() {
         File savePath = locate();
         // Create parent directory whose name is the first 2 characters of hash code.
         File parentDir = locateParentDir();
@@ -121,6 +123,12 @@ public class Commit implements Serializable {
     public boolean equals(Commit obj) {
         return this.hash() == obj.hash();
     }
+    public List<blob> getBlobs() {
+        return blobs;
+    }
+    public static String getHead() {
+        return head;
+    }
 
     /** Saved contents of a single file. Will be removed if un-staged. */
     public static class blob implements Serializable {
@@ -143,7 +151,9 @@ public class Commit implements Serializable {
         public String getHash() {
             return hash;
         }
-
+        public String getFilename() {
+            return filename;
+        }
         /** Save this blob. */
         public void save() {
             File savePath = locate();
