@@ -57,18 +57,12 @@ public class Commit implements Serializable {
         message = M;
         parent = head;
         // Load parent commit and get its blobs as default value.
-        Commit parentCommit = load(parent);
-        // TODO: Figure out how to make this compatible to add command.
-        blobs = parentCommit.blobs;
-//        // Do not update this commit to commit tree(i.e. save it) if tracked blobs(a list) equal to those of parent commit.
-//        if (blobs.equals(trackedBlobs)) {
-//            System.exit(0);
-//        }
         blobs = trackedBlobs;
         hash = hash();
         head = hash;
         // TODO: Move master pointer in some situations.
         this.save();
+        saveHead();
     }
     /** Initial commit, message and filenames are null.
      *  Since head and master are both static fields, there will be no problem calling hash method within constructor.
@@ -79,6 +73,7 @@ public class Commit implements Serializable {
         head = hash;
         master = hash;
         this.save();
+        saveHead();
     }
     /** Load a saved commit according to a given hash code. */
     public static Commit load(String hashcode) {
