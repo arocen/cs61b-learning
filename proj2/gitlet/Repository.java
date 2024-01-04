@@ -59,7 +59,6 @@ public class Repository {
      *  @param filename Name of the single file to be added. */
     public static void add(String filename) {
         File path = join(CWD, filename);
-
         // If the file to be added does not exist, raise error.
         if (!path.exists()) {
             System.out.print("File does not exist.");
@@ -74,14 +73,17 @@ public class Repository {
         Commit current = Commit.load(currentCommitHash);
         List<Commit.blob> curBlobs = current.getBlobs();
 
-        // If this file exists in current commit, and is identical(with same hashcode)
-        List<String> curHashes = curBlobs.stream().map(Commit.blob::hash).collect(Collectors.toList());
-        if (curHashes.contains(fileToBeAdded)) {
-            // Check if the file with same filename already in staging area
-            if (plainFilenamesIn(STAGE_DIR).contains(filename)) {
-                // If True, remove that staged file
-                File stagedFile = join(STAGE_DIR, filename);
-                stagedFile.delete();
+        // If this file exists in current commit, and is identical(with same hashcode), exit
+        if (curBlobs != null) {
+            List<String> curHashes = curBlobs.stream().map(Commit.blob::hash).collect(Collectors.toList());
+            if (curHashes.contains(fileToBeAdded)) {
+                // Check if the file with same filename already in staging area
+                if (plainFilenamesIn(STAGE_DIR).contains(filename)) {
+                    // If True, remove that staged file
+                    File stagedFile = join(STAGE_DIR, filename);
+                    stagedFile.delete();
+                    System.exit(0);
+                }
             }
         }
         // Else add the newest version to staging area(a copy of raw file)
@@ -93,12 +95,6 @@ public class Repository {
     }
     /** Commit staged files. */
     public static void commit(String M) {
-        // Message can't be blank
-        if (M == "") {
-            System.out.print("Please enter a commit message.");
-            System.exit(0);
-        }
-
         // Get blobs from previous commit
         String currentCommitHash = Commit.getHead();
         // Modifications to this de-serialized object does not affect previous commit.
@@ -125,6 +121,10 @@ public class Repository {
         for (String S : stagedFiles) {
             Commit.blob newTracked = new Commit.blob(join(STAGE_DIR, S), S);
             curBlobs.add(newTracked);
+        }
+        // Save new blobs
+        for (Commit.blob N : curBlobs) {
+            N.save();
         }
         // Create new commit, automatically saved
         Commit newest = new Commit(M, curBlobs);

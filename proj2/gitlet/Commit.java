@@ -22,7 +22,7 @@ import static gitlet.Utils.join;
  */
 public class Commit implements Serializable {
     /**
-     * TODO: add instance variables here.
+     * TODO: add method to saving and loading master.
      *
      * List all instance variables of the Commit class here with a useful
      * comment above them describing what that variable represents and how that
@@ -30,6 +30,8 @@ public class Commit implements Serializable {
      */
     /** The objects directory where commits are saved. */
     public static final File COMMITS_DIR = Utils.join(Repository.GITLET_DIR, "commits");
+    /** Location where head pointer is saved. A path of head file. */
+    public static final File HEAD_PATH = Utils.join(Repository.GITLET_DIR, "head");
     /** Point to the position of user. */
     public static String head;
     /** Point to master branch. */
@@ -82,7 +84,9 @@ public class Commit implements Serializable {
     public static Commit load(String hashcode) {
         // Get location
         File savePath = blob.locate(COMMITS_DIR, hashcode);
-        return Utils.readObject(savePath, Commit.class);
+        Commit loaded =  Utils.readObject(savePath, Commit.class);
+        loaded.loadHead();
+        return loaded;
     }
     /** Hash commit. Static fields are not hashed. */
     private String hash() {
@@ -104,13 +108,29 @@ public class Commit implements Serializable {
             try {
                 savePath.createNewFile();
             } catch (IOException e) {
-                // Handle situations that file already exists.
                 // TODO: use a better way to handle this.
-                throw Utils.error("Commit file already exists.");
+                throw Utils.error("IOException");
             }
         }
         // Write serialized Commit.
         Utils.writeObject(savePath, this);
+        // Save static fields
+        saveHead();
+    }
+    /** Create or overwrite head pointer. */
+    private static void saveHead() {
+        if (!HEAD_PATH.exists()) {
+            try {
+            HEAD_PATH.createNewFile();
+            } catch (IOException e) {
+                // TODO: use a better way to handle this.
+                throw Utils.error("IOException");
+            }
+        }
+        Utils.writeContents(HEAD_PATH, head);
+    }
+    private static void loadHead() {
+        head = Utils.readContentsAsString(HEAD_PATH);
     }
     /** Reuse code from blob class to get location from hash code. */
     public File locate() {
@@ -127,6 +147,7 @@ public class Commit implements Serializable {
         return blobs;
     }
     public static String getHead() {
+        loadHead();
         return head;
     }
 
@@ -165,7 +186,7 @@ public class Commit implements Serializable {
                 } catch (IOException e) {
                     // Handle situations that file already exists.
                     // TODO: use a better way to handle this.
-                    throw Utils.error("Blob file already exists.");
+                    throw Utils.error("IOException");
                 }
             }
             Utils.writeObject(savePath, this);
@@ -193,7 +214,9 @@ public class Commit implements Serializable {
             return this.hash() == obj.hash();
         }
         public String hash(){
-            return Utils.sha1(this);
+            // Serialize this to make sure it's a byte array.
+            byte[] serializedBlob = Utils.serialize(this);
+            return Utils.sha1(serializedBlob);
         }
     }
     /** Get system time and format it like "00:00:00 UTC, Thursday, 1 January 1970". */

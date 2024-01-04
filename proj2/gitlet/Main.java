@@ -19,10 +19,17 @@ public class Main {
                 Repository.init();
                 break;
             case "add":
-                Repository.add(firstArg);
+                String fileToBeAdded = args[1];
+                Repository.add(fileToBeAdded);
                 break;
             case "commit":
-                Repository.commit(firstArg);
+                String message = args[1];
+                // Message can't be blank
+                if (message == "") {
+                    System.out.print("Please enter a commit message.");
+                    System.exit(0);
+                }
+                Repository.commit(message);
                 break;
             // TODO: FILL THE REST IN
         }
