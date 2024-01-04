@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.nio.file.*;
@@ -44,6 +45,7 @@ public class Repository {
         }
         // Create folders
         GITLET_DIR.mkdir();
+        STAGE_DIR.mkdir();
         Commit.COMMITS_DIR.mkdir();
         Commit.blob.BLOBS_DIR.mkdir();
         // Create initial commit
@@ -87,9 +89,11 @@ public class Repository {
             }
         }
         // Else add the newest version to staging area(a copy of raw file)
+        // Warning: ensure stage folder already created with init command, else copy operation raises error.
         try {
             Files.copy(path.toPath(), join(STAGE_DIR, filename).toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
+            e.printStackTrace();
             throw error("Error copying file to staging area.");
         }
     }
@@ -106,16 +110,21 @@ public class Repository {
             System.out.print("No changes added to the commit.");
             System.exit(0);
         }
-
-        for (int i = 0; i < curBlobs.size(); i++) {
-            Commit.blob checkedBlob = curBlobs.get(i);
-            String checkedFilename = checkedBlob.getFilename();
-            if (stagedFiles.contains(checkedFilename)) {
-                Commit.blob updatedFile = new Commit.blob(join(STAGE_DIR, checkedFilename), checkedFilename);
-                curBlobs.set(i, updatedFile);
-                // This file is removed in following checking
-                stagedFiles.remove(i);
+        if (curBlobs != null) {
+            for (int i = 0; i < curBlobs.size(); i++) {
+                Commit.blob checkedBlob = curBlobs.get(i);
+                String checkedFilename = checkedBlob.getFilename();
+                if (stagedFiles.contains(checkedFilename)) {
+                    Commit.blob updatedFile = new Commit.blob(join(STAGE_DIR, checkedFilename), checkedFilename);
+                    curBlobs.set(i, updatedFile);
+                    // This file is removed in following checking
+                    stagedFiles.remove(i);
+                }
             }
+        }
+        // If current commit has no blob, initialize curBlobs with size 0.
+        else {
+            curBlobs = new ArrayList<>();
         }
         // Add new tracked file
         for (String S : stagedFiles) {
@@ -128,7 +137,8 @@ public class Repository {
         }
         // Create new commit, automatically saved
         Commit newest = new Commit(M, curBlobs);
-        // TODO: Clear all files in staging area after commit
+
+        // Clear all files in staging area after commit
         for (String P : plainFilenamesIn(STAGE_DIR)) {
             join(STAGE_DIR, P).delete();
         }
