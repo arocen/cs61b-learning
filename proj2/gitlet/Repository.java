@@ -165,6 +165,36 @@ public class Repository {
         }
         // TODO: If merge exists, use a different logic
     }
+    /** Print all commits in a random order. Does not treat merge commits specially. */
+    public static void globalLog() {
+        // Load nested folders in commit area
+        List<File> commitFolders = getAllSubdirectories(Commit.COMMITS_DIR);
+        for (File subDir : commitFolders) {
+            // Load saved commits in nested folder
+            List<String> commitFiles = plainFilenamesIn(subDir);
+            for (String filename : commitFiles) {
+                // Load each commit and print
+                Commit C = Commit.loadByFilename(filename);
+                C.print();
+            }
+        }
+    }
+    /** Get all child directories in a directory as a list of File type. */
+    private static List<File> getAllSubdirectories(File parentDir) {
+        List<File> subdirectories = new ArrayList<>();
+
+        File[] files = parentDir.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    subdirectories.add(file);
+                    // Recursively get subdirectories
+                    subdirectories.addAll(getAllSubdirectories(file));
+                }
+            }
+        }
+        return subdirectories;
+    }
 
     /** Version 1 of checkout.
      *  Create or overwrite file in CWD with the file of same name which is in head commit.

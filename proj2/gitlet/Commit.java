@@ -85,6 +85,13 @@ public class Commit implements Serializable {
         loaded.loadHead();
         return loaded;
     }
+    /** Load a saved commit according to filename. */
+    public static Commit loadByFilename(String filename) {
+        File savePath = join(COMMITS_DIR, filename);
+        Commit loaded =  Utils.readObject(savePath, Commit.class);
+        loaded.loadHead();
+        return loaded;
+    }
     /** Hash commit. Static fields are not hashed. */
     private String hash() {
         // Serialize this to make sure it's a byte array.
@@ -171,6 +178,7 @@ public class Commit implements Serializable {
         return formattedTime;
     }
     private static String convertToCurrentTimezone(String utcDatetime) {
+        // TODO: fix bugs
         // Parse the UTC time
         DateTimeFormatter utcFormatter = DateTimeFormatter.ofPattern("HH:mm:ss 'UTC, 'EEEE, d MMMM yyyy");
         ZonedDateTime utcDateTime = ZonedDateTime.parse(utcDatetime, utcFormatter);

@@ -40,6 +40,10 @@ public class Main {
                 // Usage: java gitlet.Main log
                 Repository.log();
                 break;
+            case "global-log":
+                // Usage: java gitlet.Main global-log
+                Repository.globalLog();
+                break;
             case "checkout":
                 // TODO
                 // Version 1
