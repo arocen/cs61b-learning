@@ -89,7 +89,7 @@ public class Repository {
             }
         }
         // Else add the newest version to staging area(a copy of raw file)
-        // Warning: ensure stage folder already created with init command, else copy operation raises error.
+        // Warning: ensure stage folder already created by init command, else copy operation raises error.
         try {
             Files.copy(path.toPath(), join(STAGE_DIR, filename).toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
@@ -145,11 +145,14 @@ public class Repository {
             System.out.print("File does not exist in that commit.");
             System.exit(0);
         }
-        // Get file location with that name in head commit
-        File source = Commit.blob.locate(checkoutPairs.get(filename));
-        // Overwrite file to version in head commit
+
+        // Warning: do not directly copy blob file, write content in blob to destination instead.
+        // Load blob of this file
+        Commit.blob sourceBlob = Commit.blob.load(checkoutPairs.get(filename));
+        byte[] sourceContents = sourceBlob.getContents();
+        // Create or overwrite it
         try {
-            Files.copy(source.toPath(), join(CWD, filename).toPath(), StandardCopyOption.REPLACE_EXISTING);
+            Files.write(join(CWD, filename).toPath(), sourceContents, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -116,7 +116,7 @@ def contents(filename):
     try:
         # Add encoding='unicode_escape' to solve error: FAILED (gbk)
         # Error may look like: 'gbk' codec can't decode byte 0xac in position 0: illegal multibyte sequence
-        with open(filename, encoding='unicode_escape') as inp:
+        with open(filename, encoding='utf-8') as inp:
             return inp.read()
     except FileNotFoundError:
         return None
@@ -366,9 +366,14 @@ def doTest(test):
                     reportDetails(test, included_files, line_num)
                     return False
             elif Match(r'=\s*(\S+)\s+(\S+)', line):
-                if not correctFileOutput(Group(1), Group(2), cdir):
+                if not correctFileOutput(Group(1), Group(1), cdir):
                     print("ERROR (file {} has incorrect content)"
                           .format(Group(1)))
+
+                    # Debug
+                    print("got:", canonicalize(contents(join(cdir, Group(1)))))
+                    print("expected:", canonicalize(contents(join(src_dir, Group(1)))))
+
                     reportDetails(test, included_files, line_num)
                     return False
             elif Match(r'\*\s*(\S+)', line):

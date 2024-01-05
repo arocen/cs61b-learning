@@ -157,6 +157,8 @@ public class Commit implements Serializable {
         public String filename;
         /** Hash of the file. */
         public String hash;
+        /** Contents of the file. */
+        private byte[] contents;
         public static final File BLOBS_DIR = Utils.join(Repository.GITLET_DIR, "blobs");
 
         /** Launcher of blob.
@@ -164,9 +166,13 @@ public class Commit implements Serializable {
          * @param fileToBeAdded A single full path of staged file.
          * */
         public blob(File fileToBeAdded, String name) {
-            byte[] contents = Utils.readContents(fileToBeAdded);
+            contents = Utils.readContents(fileToBeAdded);
             filename = name;
             hash = hash();
+        }
+        /** Return contents of file. */
+        public byte[] getContents() {
+            return contents;
         }
         /** Return hash field. */
         public String getHash() {
@@ -190,6 +196,15 @@ public class Commit implements Serializable {
                 }
             }
             Utils.writeObject(savePath, this);
+        }
+        public static blob load(String hashcode) {
+            File savePath = locate(hashcode);
+            if (!savePath.exists()) {
+                System.out.print("No blob of that hash exists.");
+                System.exit(0);
+            }
+            blob loaded =  Utils.readObject(savePath, blob.class);
+            return loaded;
         }
         public File locate() {
             return locate(BLOBS_DIR, hash);
