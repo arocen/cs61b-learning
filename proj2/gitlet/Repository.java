@@ -151,6 +151,21 @@ public class Repository {
             System.exit(0);
         }
     }
+    /** Print all history commits from current commit. */
+    public static void log() {
+        // Load current commit
+        Commit current = Commit.load(Commit.getHead());
+        // Print current commit
+        current.print();
+        // If parent is not null, keep loading and printing
+        while (current.getParent() != null) {
+            // Load parent commit
+            current = Commit.load(current.getParent());
+            current.print();
+        }
+        // TODO: If merge exists, use a different logic
+    }
+
     /** Version 1 of checkout.
      *  Create or overwrite file in CWD with the file of same name which is in head commit.
      *  The new version of the file is not staged. */

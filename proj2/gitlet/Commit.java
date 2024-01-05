@@ -5,14 +5,12 @@ package gitlet;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Date; // TODO: You'll likely use this in this class
+import java.util.*;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.time.LocalDateTime;
 
 import static gitlet.Utils.join;
 
@@ -37,9 +35,9 @@ public class Commit implements Serializable {
     /** Location where head pointer is saved. A path of head file. */
     public static final File HEAD_PATH = Utils.join(Repository.GITLET_DIR, "head");
     /** Point to the position of user. */
-    public static String head;
+    private static String head;
     /** Point to master branch. */
-    public static String master;
+    private static String master;
     /** The message of this Commit. */
     private String message;
     /** The timestamp of this Commit. */
@@ -47,7 +45,7 @@ public class Commit implements Serializable {
     /** Use treeMap to store filename-hash pairs in sorted order. */
     public Map<String, String> filenameHashPairs;
     /** Hash code of commit. */
-    public String hash;
+    private String hash;
     /** Pointer to its parent commit. The hash code of parent commit, i.e. where head points to last time. */
     private String parent;
 
@@ -150,13 +148,48 @@ public class Commit implements Serializable {
         loadHead();
         return head;
     }
+    public String getParent() {
+        return parent;
+    }
+    /** Print information of this commit. Used in log command. */
+    public void print() {
+        Formatter formatter = new Formatter();
+        String localTime = convertToCurrentTimezone(time);
+        formatter.format("===\ncommit %s\nDate %s\n%s\n", hash, localTime, message);
+        System.out.println(formatter);
+        formatter.close();
+    }
+    /** Get system time and format it like "00:00:00 UTC, Thursday, 1 January 1970". */
+    private static String getTime() {
+        Instant currentInstant = Instant.now();
+        ZoneId utcZone = ZoneId.of("UTC");
+        ZonedDateTime utcDateTime = ZonedDateTime.ofInstant(currentInstant, utcZone);
+
+        // Format the time
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss 'UTC, 'EEEE, d MMMM yyyy");
+        String formattedTime = utcDateTime.format(formatter);
+        return formattedTime;
+    }
+    private static String convertToCurrentTimezone(String utcDatetime) {
+        // Parse the UTC time
+        DateTimeFormatter utcFormatter = DateTimeFormatter.ofPattern("HH:mm:ss 'UTC, 'EEEE, d MMMM yyyy");
+        ZonedDateTime utcDateTime = ZonedDateTime.parse(utcDatetime, utcFormatter);
+
+        // Convert to the system's default time zone
+        ZoneId systemZone = ZoneId.systemDefault();
+        ZonedDateTime systemDateTime = utcDateTime.withZoneSameInstant(systemZone);
+
+        // Format the time
+        DateTimeFormatter localTimeFormatter = DateTimeFormatter.ofPattern("E MMM dd HH:mm:ss yyyy Z");
+        return systemDateTime.format(localTimeFormatter);
+    }
 
     /** Saved contents of a single file. Will be removed if un-staged. */
     public static class blob implements Serializable {
         /** Location of the saved serialized file. */
-        public String filename;
+        private String filename;
         /** Hash of the file. */
-        public String hash;
+        private String hash;
         /** Contents of the file. */
         private byte[] contents;
         public static final File BLOBS_DIR = Utils.join(Repository.GITLET_DIR, "blobs");
@@ -236,16 +269,5 @@ public class Commit implements Serializable {
             byte[] serializedBlob = Utils.serialize(this);
             return Utils.sha1(serializedBlob);
         }
-    }
-    /** Get system time and format it like "00:00:00 UTC, Thursday, 1 January 1970". */
-    private static String getTime() {
-        Instant currentInstant = Instant.now();
-        ZoneId utcZone = ZoneId.of("UTC");
-        ZonedDateTime utcDateTime = ZonedDateTime.ofInstant(currentInstant, utcZone);
-
-        // Format the time
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss 'UTC, 'EEEE, d MMMM yyyy");
-        String formattedTime = utcDateTime.format(formatter);
-        return formattedTime;
     }
 }
