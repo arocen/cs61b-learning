@@ -33,10 +33,20 @@ public class Main {
                 break;
             case "checkout":
                 // TODO
-                // version 1
-                // java gitlet.Main checkout -- [file name]
+                // Version 1
+                // Usage: java gitlet.Main checkout -- [file name]
                 if (args.length == 3) {
                     Repository.checkout(args[2]);
+                }
+                // Version 2
+                // Usage: java gitlet.Main checkout [commit id] -- [file name]
+                if (args.length == 4) {
+                    Repository.checkout(args[1], args[3]);
+                }
+                // Version 3
+                // Usage: java gitlet.Main checkout [branch name]
+                if (args.length == 3) {
+                    Repository.checkout(args[1]);
                 }
 
             // TODO: FILL THE REST IN

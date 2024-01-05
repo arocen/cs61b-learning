@@ -79,6 +79,10 @@ public class Commit implements Serializable {
     public static Commit load(String hashcode) {
         // Get location
         File savePath = blob.locate(COMMITS_DIR, hashcode);
+        if (!savePath.exists()) {
+            System.out.print("No commit with that id exists.");
+            System.exit(0);
+        }
         Commit loaded =  Utils.readObject(savePath, Commit.class);
         loaded.loadHead();
         return loaded;

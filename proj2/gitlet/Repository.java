@@ -130,29 +130,28 @@ public class Repository {
         }
     }
     /** Create or overwrite file in CWD with the file of same name which is in head commit.
-     *  The new file is not staged. */
+     *  The new version of the file is not staged. */
     public static void checkout(String filename) {
-        // Load head commit
-        String headHash = Commit.getHead();
-        Commit head = Commit.load(headHash);
-        Map<String, String> headPairs = head.getFilenameHashPairs();
+        checkout(Commit.getHead(), filename);
+    }
+    /** Create or overwrite file in CWD with the file of same name which is in commit with given hash.
+     *  The new version of the file is not staged. */
+    public static void checkout(String commitID, String filename) {
+        // Load commit with given ID. Exception will be thrown during loading if no commit with that id exists.
+        Commit checkoutCom = Commit.load(commitID);
+        Map<String, String> checkoutPairs = checkoutCom.getFilenameHashPairs();
         // Check if given filename is in keys of headPairs.
-        if (headPairs == null || !headPairs.containsKey(filename)) {
+        if (checkoutPairs == null || !checkoutPairs.containsKey(filename)) {
             System.out.print("File does not exist in that commit.");
             System.exit(0);
         }
         // Get file location with that name in head commit
-        File source = Commit.blob.locate(headPairs.get(filename));
+        File source = Commit.blob.locate(checkoutPairs.get(filename));
         // Overwrite file to version in head commit
         try {
             Files.copy(source.toPath(), join(CWD, filename).toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-    /** Create or overwrite file in CWD with the file of same name which is in commit with given hash.
-     *  The new file is not staged. */
-    public static void checkout(String commitID, String filename) {
-
     }
 }
