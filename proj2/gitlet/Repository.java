@@ -130,17 +130,35 @@ public class Repository {
         }
     }
     /** Unstage the file if it is currently staged for addition.
-     *  If the file is tracked in the current commit, stage it for removal and remove the file from the working directory if the user has not already done so
-     *  (do not remove it unless it is tracked in the current commit).*/
+     *  If the file is tracked in the current commit, stage it for removal
+     *  and remove the file from the working directory if the user has not already done so.*/
     public static void rm(String filename) {
-        // TODO
+        // Check if the file is currently staged for addition
+        Commit current = Commit.load(Commit.getHead());
+        if (plainFilenamesIn(STAGE_DIR).contains(filename) && !current.filenameHashPairs.containsKey(filename)) {
+            join(STAGE_DIR, filename).delete();
+        }
+        //  Check if the file is tracked in the current commit
+        else if (current.filenameHashPairs.containsKey(filename)) {
+            // Stage
+            add(filename);
+            // Remove
+            restrictedDelete(filename);
+        }
+        //  If the file is neither staged nor tracked by the head commit, print the error message
+        else {
+            System.out.print("No reason to remove the file.");
+            System.exit(0);
+        }
     }
-    /** Create or overwrite file in CWD with the file of same name which is in head commit.
+    /** Version 1 of checkout.
+     *  Create or overwrite file in CWD with the file of same name which is in head commit.
      *  The new version of the file is not staged. */
     public static void checkout(String filename) {
         checkout(Commit.getHead(), filename);
     }
-    /** Create or overwrite file in CWD with the file of same name which is in commit with given hash.
+    /** Version 2 of checkout.
+     *  Create or overwrite file in CWD with the file of same name which is in commit with given hash.
      *  The new version of the file is not staged. */
     public static void checkout(String commitID, String filename) {
         // Load commit with given ID. Exception will be thrown during loading if no commit with that id exists.
@@ -163,6 +181,7 @@ public class Repository {
             throw new RuntimeException(e);
         }
     }
+    /** Version 3 of checkout. */
     public static void checkoutBranch(String branchName) {
         // TODO
     }
