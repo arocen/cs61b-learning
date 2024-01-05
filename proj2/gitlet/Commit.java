@@ -158,6 +158,16 @@ public class Commit implements Serializable {
     public String getParent() {
         return parent;
     }
+    public String getMessage() {
+        return message;
+    }
+    public String getHash() {
+        return hash;
+    }
+    public String getMaster() {
+        // TODO: load and update master from saved master file
+        return master;
+    }
     /** Print information of this commit. Used in log command. */
     public void print() {
         Formatter formatter = new Formatter();

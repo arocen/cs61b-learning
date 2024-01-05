@@ -195,7 +195,32 @@ public class Repository {
         }
         return subdirectories;
     }
+    /** Print commit IDs of commits with given message, in separate line.*/
+    public static void find(String message) {
+        // IDs satisfy the condition
+        List<String> IDs = new ArrayList<>();
 
+        // Load nested folders in commit area
+        List<File> commitFolders = getAllSubdirectories(Commit.COMMITS_DIR);
+        for (File subDir : commitFolders) {
+            // Load saved commits in nested folder
+            List<String> commitFiles = plainFilenamesIn(subDir);
+            for (String filename : commitFiles) {
+                // Load each commit and check its message
+                Commit C = Commit.loadByFilename(filename);
+                // Check message
+                if (C.getMessage() == message) {
+                    IDs.add(C.getHash());
+                }
+            }
+        }
+        if (IDs.size() == 0) {
+            System.out.print("Found no commit with that message.");
+            System.exit(0);
+        }
+        // Print in separate line
+        IDs.forEach(System.out::println);
+    }
     /** Version 1 of checkout.
      *  Create or overwrite file in CWD with the file of same name which is in head commit.
      *  The new version of the file is not staged. */

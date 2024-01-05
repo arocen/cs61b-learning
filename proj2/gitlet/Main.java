@@ -44,6 +44,10 @@ public class Main {
                 // Usage: java gitlet.Main global-log
                 Repository.globalLog();
                 break;
+            case "find":
+                // Usage: java gitlet.Main find [commit message]
+                Repository.find(args[1]);
+                break;
             case "checkout":
                 // TODO
                 // Version 1
