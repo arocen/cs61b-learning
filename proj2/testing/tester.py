@@ -114,7 +114,9 @@ def Group(n):
 
 def contents(filename):
     try:
-        with open(filename) as inp:
+        # Add encoding='unicode_escape' to solve error: FAILED (gbk)
+        # Error may look like: 'gbk' codec can't decode byte 0xac in position 0: illegal multibyte sequence
+        with open(filename, encoding='unicode_escape') as inp:
             return inp.read()
     except FileNotFoundError:
         return None
@@ -466,6 +468,8 @@ if __name__ == "__main__":
                     show -= 1
         except ValueError as excp:
             print("FAILED ({})".format(excp.args[0]))
+            # Debug: print full error message
+            print(excp)
             fails += 1
 
     print()

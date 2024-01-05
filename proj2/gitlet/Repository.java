@@ -154,4 +154,7 @@ public class Repository {
             throw new RuntimeException(e);
         }
     }
+    public static void checkoutBranch(String branchName) {
+        // TODO
+    }
 }

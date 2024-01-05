@@ -46,7 +46,7 @@ public class Main {
                 // Version 3
                 // Usage: java gitlet.Main checkout [branch name]
                 if (args.length == 3) {
-                    Repository.checkout(args[1]);
+                    Repository.checkoutBranch(args[1]);
                 }
 
             // TODO: FILL THE REST IN
