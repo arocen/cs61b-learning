@@ -31,6 +31,11 @@ public class Main {
                 }
                 Repository.commit(message);
                 break;
+            case "rm":
+                // Usage: java gitlet.Main rm [file name]
+                String fileToBeRemoved = args[1];
+                Repository.rm(fileToBeRemoved);
+                break;
             case "checkout":
                 // TODO
                 // Version 1

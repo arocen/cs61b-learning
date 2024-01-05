@@ -129,6 +129,12 @@ public class Repository {
             join(STAGE_DIR, P).delete();
         }
     }
+    /** Unstage the file if it is currently staged for addition.
+     *  If the file is tracked in the current commit, stage it for removal and remove the file from the working directory if the user has not already done so
+     *  (do not remove it unless it is tracked in the current commit).*/
+    public static void rm(String filename) {
+        // TODO
+    }
     /** Create or overwrite file in CWD with the file of same name which is in head commit.
      *  The new version of the file is not staged. */
     public static void checkout(String filename) {
