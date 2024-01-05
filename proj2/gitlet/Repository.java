@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.nio.file.*;
 
@@ -73,19 +74,18 @@ public class Repository {
         // Load current commit
         String currentCommitHash = Commit.getHead();
         Commit current = Commit.load(currentCommitHash);
-        List<Commit.blob> curBlobs = current.getBlobs();
+        Map<String, String> curPairs = current.getFilenameHashPairs();
 
-        // If this file exists in current commit, and is identical(with same hashcode), exit
-        if (curBlobs != null) {
-            List<String> curHashes = curBlobs.stream().map(Commit.blob::hash).collect(Collectors.toList());
-            if (curHashes.contains(fileToBeAdded)) {
-                // Check if the file with same filename already in staging area
+        // If this file exists in current commit, and is identical(with same hashcode), abort
+        if (curPairs != null && curPairs.get(filename) != null) {
+            if (curPairs.get(filename) == fileToBeAdded.getHash()) {
+                // Check if the file with same filename already in staging area.
+                // If True, remove that staged file.
                 if (plainFilenamesIn(STAGE_DIR).contains(filename)) {
-                    // If True, remove that staged file
                     File stagedFile = join(STAGE_DIR, filename);
                     stagedFile.delete();
-                    System.exit(0);
                 }
+                System.exit(0);
             }
         }
         // Else add the newest version to staging area(a copy of raw file)
@@ -103,40 +103,26 @@ public class Repository {
         String currentCommitHash = Commit.getHead();
         // Modifications to this de-serialized object does not affect previous commit.
         Commit current = Commit.load(currentCommitHash);
-        List<Commit.blob> curBlobs = current.getBlobs();
-        // Compare to staging area, update previous committed file
+        Map<String, String> curPairs = current.getFilenameHashPairs();
+
+        // Compare files in current commits to staged files
         List<String> stagedFiles = plainFilenamesIn(STAGE_DIR);
         if (stagedFiles == null) {
             System.out.print("No changes added to the commit.");
             System.exit(0);
         }
-        if (curBlobs != null) {
-            for (int i = 0; i < curBlobs.size(); i++) {
-                Commit.blob checkedBlob = curBlobs.get(i);
-                String checkedFilename = checkedBlob.getFilename();
-                if (stagedFiles.contains(checkedFilename)) {
-                    Commit.blob updatedFile = new Commit.blob(join(STAGE_DIR, checkedFilename), checkedFilename);
-                    curBlobs.set(i, updatedFile);
-                    // This file is removed in following checking
-                    stagedFiles.remove(i);
-                }
+        if (curPairs != null) {
+            for (String checkedFilename : stagedFiles) {
+                // Update current committed files with staged files having same name, and add new tracked files.
+                Commit.blob updatedFile = new Commit.blob(join(STAGE_DIR, checkedFilename), checkedFilename);
+                // Save these files as new blobs
+                updatedFile.save();
+                // put method can create or overwrite a pair
+                curPairs.put(checkedFilename, updatedFile.getHash());
             }
         }
-        // If current commit has no blob, initialize curBlobs with size 0.
-        else {
-            curBlobs = new ArrayList<>();
-        }
-        // Add new tracked file
-        for (String S : stagedFiles) {
-            Commit.blob newTracked = new Commit.blob(join(STAGE_DIR, S), S);
-            curBlobs.add(newTracked);
-        }
-        // Save new blobs
-        for (Commit.blob N : curBlobs) {
-            N.save();
-        }
         // Create new commit, automatically saved
-        Commit newest = new Commit(M, curBlobs);
+        Commit newest = new Commit(M, curPairs);
 
         // Clear all files in staging area after commit
         for (String P : plainFilenamesIn(STAGE_DIR)) {
@@ -149,13 +135,13 @@ public class Repository {
         // Load head commit
         String headHash = Commit.getHead();
         Commit head = Commit.load(headHash);
-        List<Commit.blob> headBlobs = head.getBlobs();
-        if (filenameInBlobs(filename, headBlobs) == null) {
-            System.out.print("File does not exist in that commit.");
-            System.exit(0);
-        }
-        // Get file with that name in head commit
-        String blobHash = filenameInBlobs(filename, headBlobs);
+//        List<Commit.blob> headBlobs = head.getBlobs();
+//        if (filenameInBlobs(filename, headBlobs) == null) {
+//            System.out.print("File does not exist in that commit.");
+//            System.exit(0);
+//        }
+//        // Get file with that name in head commit
+//        String blobHash = filenameInBlobs(filename, headBlobs);
         // TODO: load that blob
     }
     /** Check if given filename is same to filename of one blob in blob list.

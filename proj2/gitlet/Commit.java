@@ -11,6 +11,8 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import static gitlet.Utils.join;
 
@@ -22,7 +24,9 @@ import static gitlet.Utils.join;
  */
 public class Commit implements Serializable {
     /**
-     * TODO: add method to saving and loading master.
+     * TODO: add method about saving and loading master.
+     * TODO: modify Commit to make it only save filename and hashcode of blobs. Contents of files are not included.
+     *     Maybe use a treeMap?
      *
      * List all instance variables of the Commit class here with a useful
      * comment above them describing what that variable represents and how that
@@ -40,24 +44,19 @@ public class Commit implements Serializable {
     private String message;
     /** The timestamp of this Commit. */
     private String time;
-    /** Blobs in this commit. */
-    public List<blob> blobs;
+    /** Use treeMap to store filename-hash pairs in sorted order. */
+    public Map<String, String> filenameHashPairs;
     /** Hash code of commit. */
     public String hash;
     /** Pointer to its parent commit. The hash code of parent commit, i.e. where head points to last time. */
     private String parent;
 
-    /** Launcher of Commit class.
-     *
-     * @param M
-     * @param trackedBlobs By default, the blobs tracked by its parent commit.
-     */
-    public Commit(String M, List<blob> trackedBlobs) {
+    /** Launcher of Commit class. */
+    public Commit(String M, Map<String, String> trackedPairs) {
         time = getTime();
         message = M;
         parent = head;
-        // Load parent commit and get its blobs as default value.
-        blobs = trackedBlobs;
+        filenameHashPairs = trackedPairs;
         hash = hash();
         head = hash;
         // TODO: Move master pointer in some situations.
@@ -69,6 +68,7 @@ public class Commit implements Serializable {
      * */
     public Commit() {
         time = "00:00:00 UTC, Thursday, 1 January 1970";
+        filenameHashPairs = new TreeMap<>();
         hash = hash();
         head = hash;
         master = hash;
@@ -138,8 +138,8 @@ public class Commit implements Serializable {
     public boolean equals(Commit obj) {
         return this.hash() == obj.hash();
     }
-    public List<blob> getBlobs() {
-        return blobs;
+    public Map<String, String> getFilenameHashPairs() {
+        return filenameHashPairs;
     }
     /** Get string hash of head commit. */
     public static String getHead() {
