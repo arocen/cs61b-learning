@@ -135,27 +135,24 @@ public class Repository {
         // Load head commit
         String headHash = Commit.getHead();
         Commit head = Commit.load(headHash);
-//        List<Commit.blob> headBlobs = head.getBlobs();
-//        if (filenameInBlobs(filename, headBlobs) == null) {
-//            System.out.print("File does not exist in that commit.");
-//            System.exit(0);
-//        }
-//        // Get file with that name in head commit
-//        String blobHash = filenameInBlobs(filename, headBlobs);
-        // TODO: load that blob
+        Map<String, String> headPairs = head.getFilenameHashPairs();
+        // Check if given filename is in keys of headPairs.
+        if (headPairs == null || !headPairs.containsKey(filename)) {
+            System.out.print("File does not exist in that commit.");
+            System.exit(0);
+        }
+        // Get file location with that name in head commit
+        File source = Commit.blob.locate(headPairs.get(filename));
+        // Overwrite file to version in head commit
+        try {
+            Files.copy(source.toPath(), join(CWD, filename).toPath(), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
-    /** Check if given filename is same to filename of one blob in blob list.
-     *  Return hash of that blob if exists.
-     *  If blobs is null, return null. */
-    private static String filenameInBlobs(String filename, List<Commit.blob> blobs) {
-        if (blobs == null) {
-            return null;
-        }
-        for (Commit.blob B : blobs) {
-            if (B.getFilename() == filename) {
-                return B.getHash();
-            }
-        }
-        return null;
+    /** Create or overwrite file in CWD with the file of same name which is in commit with given hash.
+     *  The new file is not staged. */
+    public static void checkout(String commitID, String filename) {
+
     }
 }

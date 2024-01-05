@@ -194,6 +194,9 @@ public class Commit implements Serializable {
             return locateParentDir(BLOBS_DIR, hash);
         }
         /** Get the save location of this object according to its hash code. */
+        public static File locate(String hashcode) {
+            return locate(BLOBS_DIR, hashcode);
+        }
         public static File locate(File grandParentDir, String hashcode) {
             // Get the first two characters of hash as the parent folder of saved blob.
             String parent_folder = hashcode.substring(0, 2);
