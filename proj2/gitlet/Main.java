@@ -49,7 +49,6 @@ public class Main {
                 Repository.find(args[1]);
                 break;
             case "checkout":
-                // TODO
                 // Version 1
                 // Usage: java gitlet.Main checkout -- [file name]
                 if (args.length == 3) {
