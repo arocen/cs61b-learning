@@ -48,6 +48,10 @@ public class Main {
                 // Usage: java gitlet.Main find [commit message]
                 Repository.find(args[1]);
                 break;
+            case "status":
+                // Usage: java gitlet.Main status
+                Repository.status();
+                break;
             case "checkout":
                 // Version 1
                 // Usage: java gitlet.Main checkout -- [file name]

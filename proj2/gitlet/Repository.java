@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import java.nio.file.*;
 
 import static gitlet.Utils.*;
@@ -222,6 +221,38 @@ public class Repository {
         }
         // Print in separate lines
         IDs.forEach(System.out::println);
+    }
+    /**  Displays what branches currently exist, and marks the current branch with an asterisk(*),
+     *   Also displays what files have been staged for addition or removal. */
+    public static void status() {
+        // Print branches
+        // TODO: complete branch command and commit fields first
+        List<String> branches = ...
+        printSection("Branches", branches);
+        // Print staged files in lexical order
+        List<String> stagedFiles = plainFilenamesIn(STAGE_DIR);
+        printSection("Staged Files", stagedFiles);
+        // Print Removed files
+        // TODO
+    }
+    /** Print a section with header and contents. */
+    private static void printSection(String title, String... contents) {
+        System.out.println("=== " + title + " ===");
+        // Print contents line by line
+        for (String content : contents) {
+            System.out.println(content);
+        }
+        System.out.println();
+    }
+    private static void printSection(String title, List<String> contents) {
+        System.out.println("=== " + title + " ===");
+        // Print contents line by line
+        if (contents != null) {
+            for (String content : contents) {
+                System.out.println(content);
+            }
+        }
+        System.out.println();
     }
     /** Version 1 of checkout.
      *  Create or overwrite file in CWD with the file of same name which is in head commit.
