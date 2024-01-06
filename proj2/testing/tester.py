@@ -360,6 +360,10 @@ def doTest(test):
                 if msg == "OK":
                     if not correctProgramOutput(expected, out, last_groups,
                                                 is_regexp):
+                        # Debug
+                        print("Expected:\n", expected)
+                        print("But got:\n", out)
+
                         msg = "incorrect output"
                 if msg != "OK":
                     print("ERROR ({})".format(msg))

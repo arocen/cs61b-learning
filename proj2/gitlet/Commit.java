@@ -66,6 +66,7 @@ public class Commit implements Serializable {
      * */
     public Commit() {
         time = "00:00:00 UTC, Thursday, 1 January 1970";
+        message = "initial commit";
         filenameHashPairs = new TreeMap<>();
         hash = hash();
         head = hash;
@@ -172,7 +173,8 @@ public class Commit implements Serializable {
     public void print() {
         Formatter formatter = new Formatter();
         String localTime = convertToCurrentTimezone(time);
-        formatter.format("===\ncommit %s\nDate %s\n%s\n", hash, localTime, message);
+        // Caution: Do not forget the colon after Date
+        formatter.format("===\ncommit %s\nDate: %s\n%s\n", hash, localTime, message);
         System.out.println(formatter);
         formatter.close();
     }
@@ -183,14 +185,16 @@ public class Commit implements Serializable {
         ZonedDateTime utcDateTime = ZonedDateTime.ofInstant(currentInstant, utcZone);
 
         // Format the time
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss 'UTC, 'EEEE, d MMMM yyyy");
+        // Use Locale.ENGLISH to prevent errors parsing different language
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss z, EEEE, d MMMM yyyy", Locale.ENGLISH);
         String formattedTime = utcDateTime.format(formatter);
         return formattedTime;
     }
     private static String convertToCurrentTimezone(String utcDatetime) {
-        // TODO: fix bugs
+        // Use Locale.ENGLISH to prevent errors parsing different language
         // Parse the UTC time
-        DateTimeFormatter utcFormatter = DateTimeFormatter.ofPattern("HH:mm:ss 'UTC, 'EEEE, d MMMM yyyy");
+//        System.out.println(utcDatetime);  // Debug
+        DateTimeFormatter utcFormatter = DateTimeFormatter.ofPattern("HH:mm:ss z, EEEE, d MMMM yyyy", Locale.ENGLISH);
         ZonedDateTime utcDateTime = ZonedDateTime.parse(utcDatetime, utcFormatter);
 
         // Convert to the system's default time zone
@@ -198,7 +202,7 @@ public class Commit implements Serializable {
         ZonedDateTime systemDateTime = utcDateTime.withZoneSameInstant(systemZone);
 
         // Format the time
-        DateTimeFormatter localTimeFormatter = DateTimeFormatter.ofPattern("E MMM dd HH:mm:ss yyyy Z");
+        DateTimeFormatter localTimeFormatter = DateTimeFormatter.ofPattern("E MMM dd HH:mm:ss yyyy Z", Locale.ENGLISH);
         return systemDateTime.format(localTimeFormatter);
     }
 
