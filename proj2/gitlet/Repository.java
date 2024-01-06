@@ -135,6 +135,7 @@ public class Repository {
      *  and remove the file from the working directory if the user has not already done so.*/
     public static void rm(String filename) {
         // Check if the file is currently staged for addition
+        // If True, remove staged file, but do not remove file in CWD.
         Commit current = Commit.load(Commit.getHead());
         if (plainFilenamesIn(STAGE_DIR).contains(filename) && !current.filenameHashPairs.containsKey(filename)) {
             join(STAGE_DIR, filename).delete();
