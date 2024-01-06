@@ -57,7 +57,7 @@ public class Commit implements Serializable {
         filenameHashPairs = trackedPairs;
         hash = hash();
         head = hash;
-        // TODO: Move master pointer in some situations.
+        master = hash;
         this.save();
         saveHead();
     }
