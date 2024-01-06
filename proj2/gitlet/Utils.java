@@ -148,6 +148,7 @@ class Utils {
             return result;
         } catch (IOException | ClassCastException
                  | ClassNotFoundException excp) {
+            System.out.println(excp);
             throw new IllegalArgumentException(excp.getMessage());
         }
     }

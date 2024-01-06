@@ -10,7 +10,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.LocalDateTime;
 
 import static gitlet.Utils.join;
 
@@ -39,13 +38,13 @@ public class Commit implements Serializable {
     /** Point to master branch. */
     private static String master;
     /** The message of this Commit. */
-    private String message;
+    private final String message;
     /** The timestamp of this Commit. */
-    private String time;
+    private final String time;
     /** Use treeMap to store filename-hash pairs in sorted order. */
     public Map<String, String> filenameHashPairs;
     /** Hash code of commit. */
-    private String hash;
+    private final String hash;
     /** Pointer to its parent commit. The hash code of parent commit, i.e. where head points to last time. */
     private String parent;
 
@@ -87,8 +86,9 @@ public class Commit implements Serializable {
         return loaded;
     }
     /** Load a saved commit according to filename. */
-    public static Commit loadByFilename(String filename) {
-        File savePath = join(COMMITS_DIR, filename);
+    public static Commit loadByFilename(File subDir, String filename) {
+        File savePath = join(subDir, filename);
+//        System.out.println(savePath); // Debug
         Commit loaded =  Utils.readObject(savePath, Commit.class);
         loaded.loadHead();
         return loaded;
@@ -146,7 +146,7 @@ public class Commit implements Serializable {
         return blob.locateParentDir(COMMITS_DIR, hash);
     }
     public boolean equals(Commit obj) {
-        return this.hash() == obj.hash();
+        return this.getHash().equals(obj.getHash());
     }
     public Map<String, String> getFilenameHashPairs() {
         return filenameHashPairs;
@@ -209,11 +209,11 @@ public class Commit implements Serializable {
     /** Saved contents of a single file. Will be removed if un-staged. */
     public static class blob implements Serializable {
         /** Location of the saved serialized file. */
-        private String filename;
+        private final String filename;
         /** Hash of the file. */
-        private String hash;
+        private final String hash;
         /** Contents of the file. */
-        private byte[] contents;
+        private final byte[] contents;
         public static final File BLOBS_DIR = Utils.join(Repository.GITLET_DIR, "blobs");
 
         /** Launcher of blob.
@@ -258,8 +258,7 @@ public class Commit implements Serializable {
                 System.out.print("No blob of that hash exists.");
                 System.exit(0);
             }
-            blob loaded =  Utils.readObject(savePath, blob.class);
-            return loaded;
+            return Utils.readObject(savePath, blob.class);
         }
         public File locate() {
             return locate(BLOBS_DIR, hash);
@@ -284,7 +283,7 @@ public class Commit implements Serializable {
             return Utils.join(grandParentDir, parent_folder);
         }
         public boolean equals(blob obj) {
-            return this.hash() == obj.hash();
+            return this.getHash().equals(obj.getHash());
         }
         public String hash(){
             // Serialize this to make sure it's a byte array.

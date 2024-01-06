@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.nio.file.*;
 
@@ -174,7 +175,7 @@ public class Repository {
             List<String> commitFiles = plainFilenamesIn(subDir);
             for (String filename : commitFiles) {
                 // Load each commit and print
-                Commit C = Commit.loadByFilename(filename);
+                Commit C = Commit.loadByFilename(subDir, filename);
                 C.print();
             }
         }
@@ -207,9 +208,9 @@ public class Repository {
             List<String> commitFiles = plainFilenamesIn(subDir);
             for (String filename : commitFiles) {
                 // Load each commit and check its message
-                Commit C = Commit.loadByFilename(filename);
-                // Check message
-                if (C.getMessage() == message) {
+                Commit C = Commit.loadByFilename(subDir, filename);
+                // Use equals method instead of == to check message
+                if (Objects.equals(C.getMessage(), message)) {
                     IDs.add(C.getHash());
                 }
             }
@@ -218,7 +219,7 @@ public class Repository {
             System.out.print("Found no commit with that message.");
             System.exit(0);
         }
-        // Print in separate line
+        // Print in separate lines
         IDs.forEach(System.out::println);
     }
     /** Version 1 of checkout.
